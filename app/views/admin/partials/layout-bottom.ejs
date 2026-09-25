@@ -1,6 +1,7 @@
   </main>
 </div>
 
+<script src="/js/nav.js"></script>
 <script>
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     await fetch('/api/admin/logout', { method: 'POST' });
