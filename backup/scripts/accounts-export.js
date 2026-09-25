@@ -35,7 +35,7 @@ async function buildWorkbook() {
     { header: 'Source ID', key: 'source_id', width: 14 },
     { header: 'Member ID', key: 'member_id', width: 12 },
     { header: 'Member Name', key: 'member_name', width: 24 },
-    { header: 'Amount', key: 'amount', width: 14 },
+    { header: 'Amount (₦)', key: 'amount', width: 14 },
     { header: 'Description', key: 'description', width: 30 },
     { header: 'Status', key: 'status', width: 10 }
   ];
@@ -55,9 +55,9 @@ async function buildWorkbook() {
   const totalDebit = rows.filter(r => r.entry_type === 'debit' && r.status === 'posted')
     .reduce((s, r) => s + Number(r.amount), 0);
   summarySheet.addRows([
-    ['Total Credits (Payments)', totalCredit],
-    ['Total Debits (Expenses)', totalDebit],
-    ['Club Balance', totalCredit - totalDebit],
+    ['Total Credits (Payments) ₦', totalCredit],
+    ['Total Debits (Expenses) ₦', totalDebit],
+    ['Club Balance ₦', totalCredit - totalDebit],
     ['Generated At', new Date().toISOString()]
   ]);
   summarySheet.getColumn(1).width = 30;

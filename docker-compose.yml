@@ -29,7 +29,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      PORT: 8350
+      PORT: 3000
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-penoks}

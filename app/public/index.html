@@ -28,7 +28,18 @@
 
 <section class="hero">
   <h1>PENOKS NEIGHBORHOOD FRIENDS</h1>
-  <div class="gallery-box">Photo gallery slideshow here</div>
+  <div class="gallery-slideshow" id="gallerySlideshow">
+    <div class="slideshow-track" id="slideshowTrack">
+      <div class="slide"><img src="/assets/gallery/gallery-1.jpg" alt="Community gathering"></div>
+      <div class="slide"><img src="/assets/gallery/gallery-2.jpg" alt="Easter celebration"></div>
+      <div class="slide"><img src="/assets/gallery/gallery-3.jpg" alt="Umuaga visit"></div>
+      <div class="slide"><img src="/assets/gallery/gallery-4.jpg" alt="Vallo visit"></div>
+      <div class="slide"><img src="/assets/gallery/gallery-5.jpg" alt="Community livestock"></div>
+    </div>
+    <button class="slide-nav prev" id="slidePrev" aria-label="Previous photo">&#8249;</button>
+    <button class="slide-nav next" id="slideNext" aria-label="Next photo">&#8250;</button>
+    <div class="slide-dots" id="slideDots"></div>
+  </div>
 
   <div class="hero-actions">
     <a class="pill-btn dark" href="/submit-payment.html">Submit Payment</a>
@@ -53,6 +64,6 @@
     window.location.href = '/member-apply.html';
   });
 </script>
-
+  <script src="/js/gallery-slideshow.js"></script>
 </body>
 </html>

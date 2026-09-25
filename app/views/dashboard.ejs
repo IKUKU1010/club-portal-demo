@@ -74,7 +74,7 @@
 </div>
 
 <script>
-  function fmtMoney(n) { return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2 }); }
+  function fmtMoney(n) { return '₦' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2 }); }
   function fmtDate(d) { return new Date(d).toLocaleDateString(); }
   function badge(status) { return `<span class="badge ${status}">${status}</span>`; }
 
