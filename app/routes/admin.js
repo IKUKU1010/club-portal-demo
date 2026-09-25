@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const path = require('path');
+const fs = require('fs');
 const pool = require('../config/db');
 const { requireAdmin } = require('../middleware/auth');
 const { nextMemberId, randomPassword } = require('../utils/ids');
@@ -11,6 +12,7 @@ const router = express.Router();
 router.get('/admin/dashboard', requireAdmin, (req, res) => res.render('admin/dashboard', { admin: req.admin }));
 router.get('/admin/applicants', requireAdmin, (req, res) => res.render('admin/applicants', { admin: req.admin }));
 router.get('/admin/members', requireAdmin, (req, res) => res.render('admin/members', { admin: req.admin }));
+router.get('/admin/members/:id', requireAdmin, (req, res) => res.render('admin/member-detail', { admin: req.admin, memberId: req.params.id }));
 router.get('/admin/payments', requireAdmin, (req, res) => res.render('admin/payments', { admin: req.admin }));
 router.get('/admin/expenses', requireAdmin, (req, res) => res.render('admin/expenses', { admin: req.admin }));
 router.get('/admin/accounts', requireAdmin, (req, res) => res.render('admin/accounts', { admin: req.admin }));
@@ -142,12 +144,82 @@ router.get('/api/admin/members', requireAdmin, async (req, res) => {
 
 router.get('/api/admin/members/:id', requireAdmin, async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM members WHERE member_id = $1', [req.params.id]);
-    if (!rows.length) return res.status(404).json({ error: 'Member not found' });
-    res.json(rows[0]);
+    const memberQ = await pool.query(
+      `SELECT member_id, applicant_id, full_name, dob, nationality, occupation, phone, email,
+              address, interests, reason_for_joining, photo_path, must_change_password,
+              status, joined_at, created_at, updated_at
+       FROM members WHERE member_id = $1`,
+      [req.params.id]
+    );
+    if (!memberQ.rows.length) return res.status(404).json({ error: 'Member not found' });
+
+    const paymentsQ = await pool.query(
+      `SELECT payment_id, purpose, amount, status, admin_note, created_at
+       FROM payments WHERE member_id = $1 ORDER BY created_at DESC`,
+      [req.params.id]
+    );
+    const expensesQ = await pool.query(
+      `SELECT expense_id, purpose, amount, status, admin_note, created_at
+       FROM expenses WHERE member_id = $1 ORDER BY created_at DESC`,
+      [req.params.id]
+    );
+    const ledgerQ = await pool.query(
+      `SELECT entry_id, entry_type, source_type, source_id, amount, description, status, created_at
+       FROM accounts WHERE member_id = $1 ORDER BY created_at DESC`,
+      [req.params.id]
+    );
+    const totalsQ = await pool.query(
+      `SELECT COALESCE(SUM(amount) FILTER (WHERE entry_type = 'credit'), 0) AS total_paid,
+              COALESCE(SUM(amount) FILTER (WHERE entry_type = 'debit'), 0) AS total_expensed
+       FROM accounts WHERE member_id = $1 AND status = 'posted'`,
+      [req.params.id]
+    );
+
+    res.json({
+      profile: memberQ.rows[0],
+      payments: paymentsQ.rows,
+      expenses: expensesQ.rows,
+      ledger: ledgerQ.rows,
+      totals: totalsQ.rows[0]
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not load member' });
+  }
+});
+
+router.delete('/api/admin/members/:id', requireAdmin, async (req, res) => {
+  const memberId = req.params.id;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const memberQ = await client.query('SELECT * FROM members WHERE member_id = $1 FOR UPDATE', [memberId]);
+    if (!memberQ.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Member not found' }); }
+    const member = memberQ.rows[0];
+
+    // Deleting a member permanently removes their financial trail too, so
+    // the club balance/ledger totals will change. The confirmation warning
+    // on the admin UI makes this explicit before this endpoint is ever hit.
+    await client.query('DELETE FROM accounts WHERE member_id = $1', [memberId]);
+    await client.query('DELETE FROM payments WHERE member_id = $1', [memberId]);
+    await client.query('DELETE FROM expenses WHERE member_id = $1', [memberId]);
+    await client.query('DELETE FROM members WHERE member_id = $1', [memberId]);
+    await client.query('COMMIT');
+
+    // Best-effort cleanup of the uploaded photo file; failures here don't
+    // affect the already-committed database deletion.
+    if (member.photo_path) {
+      const filePath = path.join('/app/uploads', member.photo_path);
+      fs.unlink(filePath, () => {});
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(err);
+    res.status(500).json({ error: 'Could not delete member' });
+  } finally {
+    client.release();
   }
 });
 

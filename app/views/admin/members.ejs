@@ -17,6 +17,7 @@
         <td>${m.member_id}</td><td>${m.full_name}</td><td>${m.email || '-'}</td><td>${m.phone || '-'}</td>
         <td>${badge(m.status)}</td><td>${fmtDate(m.joined_at)}</td>
         <td>
+          <a class="btn secondary" href="/admin/members/${m.member_id}" style="margin-right:6px;">View</a>
           ${m.status === 'active'
             ? `<button class="btn secondary" onclick="setStatus('${m.member_id}','suspended')">Suspend</button>`
             : `<button class="btn" onclick="setStatus('${m.member_id}','active')">Reactivate</button>`}

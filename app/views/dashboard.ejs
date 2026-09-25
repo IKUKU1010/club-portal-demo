@@ -53,7 +53,10 @@
 
   <div class="card">
     <h2>My Profile</h2>
-    <div class="grid-2" id="profileGrid" style="margin-top:10px;"></div>
+    <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap; margin-top:14px;">
+      <img id="profilePhoto" alt="Profile photo" style="width:120px; height:120px; object-fit:cover; border-radius:50%; border:3px solid #145a32; background:#eee; display:none;">
+      <div class="grid-2" id="profileGrid" style="flex:1; min-width:280px;"></div>
+    </div>
   </div>
 
   <div class="card">
@@ -97,6 +100,14 @@
     document.getElementById('totalExpensed').textContent = fmtMoney(data.totals.total_expensed);
 
     const p = data.profile;
+    const photoImg = document.getElementById('profilePhoto');
+    if (p.photo_path) {
+      const filename = p.photo_path.split('/').pop();
+      photoImg.src = `/api/member/file/photo/${filename}`;
+      photoImg.style.display = 'block';
+    } else {
+      photoImg.style.display = 'none';
+    }
     document.getElementById('profileGrid').innerHTML = `
       <div><label>Full Name</label><div>${p.full_name}</div></div>
       <div><label>Member ID</label><div>${p.member_id}</div></div>
