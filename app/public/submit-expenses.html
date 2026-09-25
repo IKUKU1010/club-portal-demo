@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Expense Request - PENOKS Neighborhood Friends</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="brand"><img src="/assets/logo.png" alt="PENOKS logo"></div>
+  <nav><a href="/index.html">Home</a><a href="/about.html">About</a></nav>
+  <a class="contact-btn" href="/contact.html">Contact</a>
+</header>
+
+<section class="page-section" style="max-width:640px;">
+  <h1 class="serif">Submit Expense Request</h1>
+  <p class="subtle">This request will be reviewed by an admin before it is posted to the club accounts.</p>
+
+  <div id="errorBox" class="error-msg" style="display:none;"></div>
+  <div id="successBox" class="success-msg" style="display:none;"></div>
+
+  <form id="expenseForm" class="card">
+    <label>Names *</label>
+    <input name="names" required>
+
+    <label>Member Number *</label>
+    <input name="memberNumber" placeholder="PNK-0001" required>
+
+    <label>Purpose of Expense *</label>
+    <input name="purpose" required>
+
+    <label>Amount of Expense *</label>
+    <input name="amount" type="number" min="0.01" step="0.01" required>
+
+    <label>Expense/Budget Sheet (attachment)</label>
+    <input name="budgetSheet" type="file" accept="image/*,.pdf,.xls,.xlsx">
+
+    <button class="btn" type="submit" style="width:100%;">Submit Expense Request</button>
+  </form>
+</section>
+
+<script>
+  const form = document.getElementById('expenseForm');
+  const errorBox = document.getElementById('errorBox');
+  const successBox = document.getElementById('successBox');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.style.display = 'none';
+    successBox.style.display = 'none';
+    const fd = new FormData(form);
+    try {
+      const res = await fetch('/api/expenses', { method: 'POST', body: fd });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || 'Submission failed');
+      successBox.textContent = `Expense request submitted! Reference: ${body.expenseId}. It is now pending admin approval.`;
+      successBox.style.display = 'block';
+      form.reset();
+    } catch (err) {
+      errorBox.textContent = err.message;
+      errorBox.style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>

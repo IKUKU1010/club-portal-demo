@@ -1,0 +1,39 @@
+<% pageTitle = 'Accounts'; active = 'accounts'; %>
+<%- include('partials/layout-top', { pageTitle, active, admin }) %>
+
+<h1 class="serif">Accounts Ledger</h1>
+
+<div class="summary-cards" style="grid-template-columns: repeat(3,1fr);">
+  <div class="summary-card"><div class="num" id="totalCredit">-</div><div class="label">Total Credits (Payments)</div></div>
+  <div class="summary-card"><div class="num" id="totalDebit">-</div><div class="label">Total Debits (Expenses)</div></div>
+  <div class="summary-card"><div class="num" id="balance">-</div><div class="label">Club Balance</div></div>
+</div>
+
+<p class="subtle">This ledger is exported automatically to Google Sheets on a schedule (see the backup service). Showing the most recent 500 entries.</p>
+
+<table>
+  <thead><tr><th>Date</th><th>Type</th><th>Source</th><th>Member</th><th>Amount</th><th>Description</th></tr></thead>
+  <tbody id="rows"><tr><td colspan="6">Loading...</td></tr></tbody>
+</table>
+
+<script>
+  async function load() {
+    const res = await fetch('/api/admin/accounts');
+    const d = await res.json();
+    document.getElementById('totalCredit').textContent = fmtMoney(d.total_credit);
+    document.getElementById('totalDebit').textContent = fmtMoney(d.total_debit);
+    document.getElementById('balance').textContent = fmtMoney(d.total_credit - d.total_debit);
+    document.getElementById('rows').innerHTML = d.entries.length ? d.entries.map(e => `
+      <tr>
+        <td>${fmtDate(e.created_at)}</td>
+        <td>${e.entry_type === 'credit' ? '<span class="badge active">Credit</span>' : '<span class="badge rejected">Debit</span>'}</td>
+        <td>${e.source_type} #${e.source_id}</td>
+        <td>${e.member_name || '-'}</td>
+        <td>${fmtMoney(e.amount)}</td>
+        <td>${e.description || '-'}</td>
+      </tr>`).join('') : '<tr><td colspan="6">No ledger entries yet.</td></tr>';
+  }
+  load();
+</script>
+
+<%- include('partials/layout-bottom') %>

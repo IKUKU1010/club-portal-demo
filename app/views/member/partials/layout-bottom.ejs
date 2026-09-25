@@ -1,0 +1,15 @@
+</div>
+
+<script>
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await fetch('/api/member/logout', { method: 'POST' });
+    window.location.href = '/index.html';
+  });
+  function fmtMoney(n) { return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2 }); }
+  function fmtDate(d) { return new Date(d).toLocaleDateString(); }
+  function fmtDateTime(d) { return new Date(d).toLocaleString(); }
+  function badge(status) { return `<span class="badge ${status}">${status}</span>`; }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PENOKS Neighborhood Friends</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .hero {
+    background: linear-gradient(rgba(30,30,20,0.15), rgba(30,30,20,0.35)), url('/assets/hero.jpg');
+  }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="brand">
+    <img src="/assets/logo.png" alt="PENOKS logo">
+  </div>
+  <nav>
+    <a href="/index.html" class="active">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/events.html">Events</a>
+    <a href="/news.html">News</a>
+  </nav>
+  <a class="contact-btn" href="/contact.html">Contact</a>
+</header>
+
+<section class="hero">
+  <h1>PENOKS NEIGHBORHOOD FRIENDS</h1>
+  <div class="gallery-box">Photo gallery slideshow here</div>
+
+  <div class="hero-actions">
+    <a class="pill-btn dark" href="/submit-payment.html">Submit Payment</a>
+    <a class="pill-btn dark" href="/submit-expenses.html">Submit Expenses</a>
+  </div>
+</section>
+
+<section class="page-section" style="text-align:center;">
+  <h1 class="serif">Join Our Community</h1>
+  <p class="subtle">Members enjoy a private dashboard with their profile and financial history.</p>
+  <div style="display:flex; gap:20px; justify-content:center; margin-top:24px; flex-wrap:wrap;">
+    <a class="btn" href="/login.html">Member Login</a>
+    <a class="btn secondary" id="applyBtn" href="#">New Member? Apply Here</a>
+  </div>
+</section>
+
+<script>
+  // "New members apply" opens the requirements PDF first, then links on to the application form
+  document.getElementById('applyBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.open('/membership-requirements.pdf', '_blank');
+    window.location.href = '/member-apply.html';
+  });
+</script>
+
+</body>
+</html>
